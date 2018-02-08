@@ -1,3 +1,4 @@
+# The flesh of this file adopted from https://github.com/spree/spree/issues/3774
 class Replicator
   include HTTParty
   base_uri 'localhost:3000/api/v1'
