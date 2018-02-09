@@ -101,7 +101,7 @@ RSpec.describe "Order update" do
           end
         end
 
-        it "remains in the payment state when updating address using the order update API " do
+        xit "remains in the payment state when updating address using the order update API " do
           request = { order: {} }
           response = Replicator.get(@order_route)
           expect(response['state']).to eq("payment")
@@ -124,6 +124,7 @@ RSpec.describe "Order update" do
             request[:order][:ship_address] = @bill_address
             response = Replicator.put(@checkout_route, body: request, query: {stagnate: true})
             expect(response.code).to eq(200)
+            expect(response['payments'][0]['payment_method_id']).to eq(4)
             expect(response['state']).to eq("payment")
         end
         it "remains transitions to the complete state when updating payment using the checkout API" do
@@ -139,6 +140,8 @@ RSpec.describe "Order update" do
             request[:order][:ship_address] = @bill_address
             response = Replicator.put(@checkout_route, body: request)
             expect(response.code).to eq(200)
+            logger.debug response['payments']
+            expect(response['payments'][0]['payment_method_id']).to eq(4)
             expect(response['state']).to eq("complete")
         end
       end
