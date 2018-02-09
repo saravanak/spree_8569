@@ -111,15 +111,35 @@ RSpec.describe "Order update" do
 
         end
 
-        it "remains in the payment state when updating address using the checkout API " do
-            request = { order: {} }
+        it "remains in the payment state when updating payment using the checkout API when requesting to stagnate" do
+            request = {
+              order: {
+                payments_attributes: [
+                  { payment_method_id: 4 }
+                ]
+              }
+            }
+            response = Replicator.get(@order_route)
+            expect(response['state']).to eq("payment")
+            request[:order][:ship_address] = @bill_address
+            response = Replicator.put(@checkout_route, body: request, query: {stagnate: true})
+            expect(response.code).to eq(200)
+            expect(response['state']).to eq("payment")
+        end
+        it "remains transitions to the complete state when updating payment using the checkout API" do
+            request = {
+              order: {
+                payments_attributes: [
+                  { payment_method_id: 4 }
+                ]
+              }
+            }
             response = Replicator.get(@order_route)
             expect(response['state']).to eq("payment")
             request[:order][:ship_address] = @bill_address
             response = Replicator.put(@checkout_route, body: request)
-            logger.debug response
             expect(response.code).to eq(200)
-            expect(response['state']).to eq("payment")
+            expect(response['state']).to eq("complete")
         end
       end
   end
